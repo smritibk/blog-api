@@ -7,7 +7,7 @@ export const userValidationSchema = Yup.object({
   lastName: Yup.string().max(30).required().trim(),
   gender: Yup.string().trim().required().oneOf(["male", "female", "others"]),
 
-  role: Yup.string().trim().required().oneOf(["admin", "blogger", "reader"]),
+  role: Yup.string().trim().required().oneOf(["admin", "blogger", "guest"]),
 });
 
 export const loginUserValidationSchema = Yup.object({
