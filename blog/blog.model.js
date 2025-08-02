@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { blogCategories } from "../constants/general.constants.js";
 
 //set schema
 const blogSchema = new mongoose.Schema({
@@ -7,6 +8,11 @@ const blogSchema = new mongoose.Schema({
     required: [true, "Title is required"],
     trim: true,
     maxlength: [100, "Title cannot exceed 100 characters"],
+  },
+  category: {
+    type: String,
+    required: [true, "Category is required"],
+    enum: blogCategories,
   },
   description: {
     type: String,
@@ -25,7 +31,7 @@ const blogSchema = new mongoose.Schema({
     default: Date.now,
   },
   author: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: mongoose.ObjectId,
     ref: "User",
     required: true,
   },
