@@ -151,24 +151,6 @@ router.put(
   }
 );
 
-// View blogs by category (guest provides category in request body)
-// router.post("/blog/view-by-category", isGuest, async (req, res) => {
-//   const { category } = req.body;
-//   if (!category) {
-//     return res.status(400).send({ message: "Category is required" });
-//   }
-//   try {
-//     const blogs = await Blog.find({ category })
-//       .populate("author", "name email")
-//       .sort({ createdAt: -1 });
-//     return res.status(200).send({ message: "success", blogList: blogs });
-//   } catch (error) {
-//     return res
-//       .status(500)
-//       .send({ message: "Failed to fetch blogs", error: error.message });
-//   }
-// });
-
 // View blogs by category (guest provides category in URL params)
 router.get("/blog/view-by-category/:category", isGuest, async (req, res) => {
   const { category } = req.params;
