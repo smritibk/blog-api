@@ -15,11 +15,10 @@ import validateMongoIdFromParams from "../middleware/validate.mongoid.js";
 
 const router = express.Router();
 
-// List all blogs by guest
+// List all blogs by pagination (accessible to all users), where the pagination data is provided in the request body
 router.post(
   "/blog/read",
   isUser,
-  isGuest,
   validateReqBody(paginationDataValidationSchema),
   async (req, res) => {
     //extract pagination data from req body
@@ -85,7 +84,8 @@ router.post(
 // Delete blog by id (only by the blogger who posted it)
 router.delete(
   "/blog/delete/:id",
-  isBlogger,
+  isUser,
+
   validateMongoIdFromParams,
   async (req, res) => {
     const blogId = req.params.id;
@@ -100,9 +100,9 @@ router.delete(
     if (!blog) {
       return res.status(404).send({ message: "Blog not found" });
     }
-
+    console.log(req.isAdmin);
     // Check if logged in blogger is the author
-    if (String(blog.author) !== String(req.loggedInUserId)) {
+    if (String(blog.author) !== String(req.loggedInUserId) && !req.isAdmin) {
       return res
         .status(403)
         .send({ message: "You are unauthorized to delete this blog" });
@@ -169,7 +169,6 @@ router.put(
 //   }
 // });
 
-
 // View blogs by category (guest provides category in URL params)
 router.get("/blog/view-by-category/:category", isGuest, async (req, res) => {
   const { category } = req.params;
@@ -187,5 +186,43 @@ router.get("/blog/view-by-category/:category", isGuest, async (req, res) => {
       .send({ message: "Failed to fetch blogs", error: error.message });
   }
 });
+
+// View blogs by blogger (only accessible to the blogger who posted them)
+router.post(
+  "/blog/blogger/list",
+  isBlogger,
+  validateReqBody(paginationDataValidationSchema),
+  async (req, res) => {
+    const { page, limit, searchText } = req.body;
+    const skip = (page - 1) * limit;
+
+    // Only fetch blogs by the logged-in blogger
+    let match = { author: req.loggedInUserId };
+    if (searchText) {
+      match.title = { $regex: searchText, $options: "i" };
+    }
+
+    const blogList = await Blog.aggregate([
+      { $match: match },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $project: {
+          title: 1,
+          description: { $substr: ["$description", 0, 50] },
+          content: 1,
+          category: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+
+    return res.status(200).send({
+      message: "Here is the list of your blogs",
+      blogList,
+    });
+  }
+);
 
 export default router;

@@ -31,6 +31,10 @@ export const isUser = async (req, res, next) => {
       return res.status(401).send({ message: "User not found" });
     }
 
+    //set isAdmin flag based on user role
+    req.isAdmin = user.role === "admin";
+    // console.log(req.isAdmin);
+
     // Attach user._id to request
     req.loggedInUserId = user._id;
     next();
@@ -116,6 +120,7 @@ export const isAdmin = async (req, res, next) => {
     if (user.role !== "admin") {
       return res.status(403).send({ message: "Forbidden: Not an admin" });
     }
+    
 
     // Attach user._id to request
     req.loggedInUserId = user._id;

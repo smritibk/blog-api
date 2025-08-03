@@ -79,9 +79,11 @@ router.delete(
       }
 
       // Check if the user is the author of the comment or an admin
-    //   if (!(comment.guest.toString() === req.loggedInUserId || req.isAdmin)) {
-    //     return res.status(403).send({ message: "Unauthorized" });
-    //   }
+    if (String(comment.guest) !== String(req.loggedInUserId) && !req.isAdmin) {
+  return res
+    .status(403)
+    .send({ message: "You are unauthorized to delete this comment" });
+}
 
       await Comment.findByIdAndDelete(commentId);
       return res.status(200).send({ message: "Comment deleted successfully" });
@@ -91,6 +93,43 @@ router.delete(
         error: error.message,
       });
     }
+  }
+);
+
+// Edit a comment by id (accessible to the user who posted the comment and the admin)
+router.put(
+  "/comment/edit/:id",
+  isGuest,
+  validateMongoIdFromParams,
+  validateReqBody(addCommentValidationSchema),
+  async (req, res) => {
+    const commentId = req.params.id;
+    // Find comment by id
+    const comment = await Comment.findById(commentId);
+    if (!comment) {
+      return res.status(404).send({ message: "Comment does not exist." });
+    }
+
+    // Check if logged in user is the author
+    if (String(comment.guest) !== String(req.loggedInUserId)) {
+      return res
+        .status(403)
+        .send({ message: "You are unauthorized to edit this comment" });
+    }
+
+    // Extract updated values from req body
+    const updatedValues = req.body;
+
+    // Update comment
+    await Comment.findByIdAndUpdate(commentId, {
+      ...updatedValues,
+      updatedAt: Date.now(),
+    });
+
+    // Send response
+    return res.status(200).send({
+      message: "Comment is edited successfully",
+    });
   }
 );
 
