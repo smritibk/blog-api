@@ -1,4 +1,4 @@
-# Blog Management System API
+# Blog Management API
 
 A modern RESTful API for a blogging platform, built with Node.js, Express, and MongoDB (Mongoose). This API supports robust user authentication, role-based access, blog and comment management, and advanced features for both content creators and readers.
 
