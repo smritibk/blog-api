@@ -31,7 +31,7 @@ router.post(
     //search by searchText if provided
     let match = {};
     if (searchText) {
-      match.name = { $regex: searchText, $options: "i" };
+      match.title = { $regex: searchText, $options: "i" };
     }
 
     const blogs = await Blog.aggregate([
@@ -168,6 +168,7 @@ router.put(
 //       .send({ message: "Failed to fetch blogs", error: error.message });
 //   }
 // });
+
 
 // View blogs by category (guest provides category in URL params)
 router.get("/blog/view-by-category/:category", isGuest, async (req, res) => {

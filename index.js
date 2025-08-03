@@ -2,6 +2,7 @@ import express from "express";
 import connectDB from "./db.connect.js";
 import userRoutes from "./user/user.controller.js";
 import blogRoutes from "./blog/blog.controller.js";
+import commentRoutes from "./comment/comment.controller.js";
 
 const app = express();
 
@@ -14,6 +15,7 @@ await connectDB();
 //connect routes
 app.use(userRoutes);
 app.use(blogRoutes);
+app.use(commentRoutes);
 
 //network port and server
 const PORT = 8000;
